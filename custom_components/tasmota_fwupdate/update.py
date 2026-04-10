@@ -26,7 +26,7 @@ from packaging.version import InvalidVersion, Version
 from .const import DATA_REMOVE_DISCOVER_COMPONENT, DOMAIN
 from .discovery import TASMOTA_DISCOVERY_ENTITY_NEW
 from .entity import TasmotaAvailability, TasmotaDiscoveryUpdate, TasmotaEntity
-from .hatasmota import TasmotaUpdate
+from .hatasmota import TasmotaUpdate, is_stock_build
 from .hatasmota.entity import TasmotaEntity as HATasmotaEntity
 from .hatasmota.models import DiscoveryHashType
 
@@ -210,11 +210,12 @@ class TasmotaUpdateEntity(
         self._attr_latest_version = _release_cache.get("version")
         self._attr_release_url = _release_cache.get("release_url")
         self._attr_release_summary = _release_cache.get("release_summary")
-        self._release_notes = _release_cache.get("release_notes")
-        self._update_in_progress = False
+        self._release_notes: str | None = _release_cache.get("release_notes")
+        self._update_in_progress: bool = False
         self._version_before_update: str | None = None
-        self._suppress_availability_updates = False
+        self._suppress_availability_updates: bool = False
         self._update_started: datetime | None = None
+        self._unsupported_reason: str | None = None
 
     def _get_next_upgrade_target(self) -> tuple[str | None, str | None]:
         """Calculate next upgrade target version and URL based on staged upgrade path.
@@ -257,10 +258,15 @@ class TasmotaUpdateEntity(
     @property
     def in_progress(self) -> bool | None:
         """Return if update is in progress."""
-        if self._update_in_progress:
-            # Return True for indeterminate progress (no percentage available)
-            return True
-        return False
+        return self._update_in_progress
+
+    @property
+    def supported_features(self) -> UpdateEntityFeature:
+        """Return supported features."""
+        features = UpdateEntityFeature.RELEASE_NOTES | UpdateEntityFeature.PROGRESS
+        if self._unsupported_reason is None:
+            features |= UpdateEntityFeature.INSTALL
+        return features
 
     @property
     def available(self) -> bool:
@@ -283,11 +289,15 @@ class TasmotaUpdateEntity(
     async def async_release_notes(self) -> str | None:
         """Return the release notes (changelog) from GitHub.
 
-        If a staged upgrade is required, prepend a warning about the upgrade path.
+        If a staged upgrade is required or if the update is unsupported,
+        prepend a warning.
         """
         notes = self._release_notes or ""
+        warning = ""
 
-        if self._attr_installed_version:
+        if self._unsupported_reason:
+            warning = f"⚠️ **Update disabled**\n\n{self._unsupported_reason}\n\n---\n\n"
+        elif self._attr_installed_version:
             next_target, url = self._get_next_upgrade_target()
             if next_target and next_target != self._attr_latest_version:
                 if url is None:
@@ -308,9 +318,8 @@ class TasmotaUpdateEntity(
                         f"You will need to run the update multiple times to reach the latest version.\n\n"
                         f"---\n\n"
                     )
-                return warning + notes
 
-        return notes
+        return warning + notes
 
     async def async_added_to_hass(self) -> None:
         """Subscribe to Tasmota updates."""
@@ -377,13 +386,26 @@ class TasmotaUpdateEntity(
                 self._version_before_update = None
                 self._update_started = None
 
-        _LOGGER.debug(
-            "[%s] Tasmota version update: current=%s, new=%s",
-            self._tasmota_entity.mac,
-            self._attr_installed_version,
-            new_version,
-        )
         self._attr_installed_version = new_version
+
+        # Evaluate support status
+        # Note: we use the raw 'version' string from the callback for is_stock_build
+        # because it contains the variant info needed for the regex.
+        self._unsupported_reason = None
+        if version:
+            if not is_stock_build(version):
+                self._unsupported_reason = (
+                    "Automatic updates are only supported for official Tasmota builds. "
+                    "Custom firmware detected."
+                )
+            elif new_version:
+                next_target, url = self._get_next_upgrade_target()
+                if next_target and url is None:
+                    self._unsupported_reason = (
+                        f"Your current firmware ({new_version}) is too old for automatic OTA updates. "
+                        f"Manual upgrade to at least version {next_target} required."
+                    )
+
         self.async_write_ha_state()
 
     async def async_install(
