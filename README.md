@@ -21,7 +21,7 @@ More information [are available here](https://github.com/emontnemery/hatasmota/i
 
 This integration is fully compatible with [HACS](https://hacs.xyz/).
 
-[![Open your Home Assistant instance and open a repository inside the Home Assistant Community Store.](https://my.home-assistant.io/badges/hacs_repository.svg)](https://my.home-assistant.io/redirect/hacs_repository/?repository=FaserF/ha-tasmota-update&category=integration)
+[![Open your Home Assistant instance and open a repository inside the Home Assistant Community Store.](https://my.home-assistant.io/badges/hacs_repository.svg)](https://my.home-assistant.io/redirect/hacs_repository/?owner=FaserF&repository=ha-tasmota-update&category=integration)
 
 1. Click the button above to add the custom repository to HACS.
 2. Search for "Tasmota Firmware Update".
