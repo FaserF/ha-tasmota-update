@@ -255,7 +255,7 @@ class TasmotaUpdateEntity(
         return self._attr_latest_version
 
     @property
-    def in_progress(self) -> bool | int:
+    def in_progress(self) -> bool | None:
         """Return if update is in progress."""
         if self._update_in_progress:
             # Return True for indeterminate progress (no percentage available)
