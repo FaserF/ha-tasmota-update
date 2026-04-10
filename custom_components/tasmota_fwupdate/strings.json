@@ -1,0 +1,28 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "data": {
+          "discovery_prefix": "Discovery prefix"
+        },
+        "description": "Specify the Tasmota discovery prefix.",
+        "title": "Tasmota Firmware Update"
+      }
+    },
+    "abort": {
+      "already_configured": "Service is already configured",
+      "invalid_discovery_prefix": "Invalid discovery prefix"
+    }
+  },
+  "title": "Tasmota Firmware Update",
+  "issues": {
+    "topic_duplicated": {
+      "description": "Several Tasmota devices are sharing the topic {topic}.\n\nTasmota devices with this problem: {offenders}.",
+      "title": "Several Tasmota devices are sharing the same topic"
+    },
+    "topic_no_prefix": {
+      "description": "Tasmota device {name} with IP {ip} does not include `%prefix%` in its FullTopic.\n\nEntities for this device are disabled until the configuration has been corrected.",
+      "title": "Tasmota device {name} has an invalid MQTT topic"
+    }
+  }
+}

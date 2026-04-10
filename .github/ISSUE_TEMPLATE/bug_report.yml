@@ -1,0 +1,48 @@
+name: Bug Report
+description: Create a report to help us improve the Tasmota Firmware Update integration
+title: '[Bug]: '
+labels: ['bug', 'triage']
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for taking the time to fill out this bug report!
+  - type: input
+    id: version
+    attributes:
+      label: Integration Version
+      description: Which version of this integration are you using?
+      placeholder: v1.0.0
+    validations:
+      required: true
+  - type: input
+    id: tasmota_version
+    attributes:
+      label: Tasmota Version
+      description: Which version of Tasmota is running on your device?
+      placeholder: 14.3.0
+    validations:
+      required: true
+  - type: dropdown
+    id: update_source
+    attributes:
+      label: Update Source
+      description: Where is the integration fetching the update from?
+      options:
+        - Official Tasmota OTA (Default)
+        - Custom URL
+    validations:
+      required: true
+  - type: textarea
+    id: description
+    attributes:
+      label: Describe the bug
+      description: A clear and concise description of what the bug is.
+    validations:
+      required: true
+  - type: textarea
+    id: logs
+    attributes:
+      label: Relevant log output
+      description: Please copy and paste any relevant log output. Use the integration's debug logging if possible.
+      render: shell

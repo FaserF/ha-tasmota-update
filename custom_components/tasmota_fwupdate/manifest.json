@@ -1,0 +1,21 @@
+{
+  "domain": "tasmota_fwupdate",
+  "name": "Tasmota Firmware Update",
+  "codeowners": [
+    "@FaserF"
+  ],
+  "config_flow": true,
+  "dependencies": [
+    "mqtt"
+  ],
+  "documentation": "https://github.com/FaserF/ha-tasmota-update",
+  "iot_class": "local_push",
+  "loggers": [
+    "hatasmota"
+  ],
+  "mqtt": [
+    "tasmota/discovery/#"
+  ],
+  "requirements": [],
+  "version": "1.0.0"
+}
