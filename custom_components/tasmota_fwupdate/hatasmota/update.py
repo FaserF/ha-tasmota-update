@@ -2,10 +2,10 @@
 
 from __future__ import annotations
 
-from dataclasses import dataclass
 import json
 import logging
 import re
+from dataclasses import dataclass
 from typing import Any
 
 from .const import COMMAND_BACKLOG, COMMAND_UPGRADE, CONF_DEEP_SLEEP, CONF_MAC
@@ -70,6 +70,10 @@ def is_stock_build(version_str: str) -> bool:
     version_num_str = match.group("version")
     variant = match.group("variant")
 
+    # Normalize variant: versions >= 15.0 may prefix standard variants with 'release-'
+    if variant.startswith("release-"):
+        variant = variant[8:]
+
     # Safety check: Versions older than 9.1.0 require manual migration paths
     try:
         version_parts = tuple(int(p) for p in version_num_str.split("."))
@@ -88,14 +92,17 @@ def is_stock_build(version_str: str) -> bool:
 
     if variant in OFFICIAL_VARIANTS:
         return True
+
     # Localized language builds (e.g., tasmota-DE, tasmota32-DE)
     if re.match(r"^(tasmota|tasmota32)-[A-Z]{2}$", variant):
         return True
+
     # Prefixed official variants (e.g., tasmota-sensors, tasmota32-display)
     if variant.startswith("tasmota-") and variant[8:] in OFFICIAL_VARIANTS:
         return True
     if variant.startswith("tasmota32-") and variant[10:] in OFFICIAL_VARIANTS:
         return True
+
     return False
 
 
@@ -168,12 +175,21 @@ class TasmotaUpdate(TasmotaAvailability, TasmotaEntity):
 
         def state_message_received(msg: ReceiveMessage) -> None:
             """Handle new MQTT state messages."""
+            _LOGGER.debug(
+                "[%s] Received MQTT update message on topic %s: %s",
+                self._cfg.mac,
+                msg.topic,
+                msg.payload,
+            )
             if not self._on_state_callback:
                 return
 
             try:
                 payload = json.loads(msg.payload)
             except json.decoder.JSONDecodeError:
+                _LOGGER.error(
+                    "[%s] Failed to decode MQTT payload: %s", self._cfg.mac, msg.payload
+                )
                 return
 
             # Status 2: {"StatusFWR":{"Version":"12.3.1(tasmota)","BuildDateTime":"..."}}
@@ -185,9 +201,10 @@ class TasmotaUpdate(TasmotaAvailability, TasmotaEntity):
                     match = VERSION_VARIANT_PATTERN.match(version)
                     variant = match.group("variant") if match else "unknown"
                     _LOGGER.debug(
-                        "[%s] Custom firmware build detected (variant: %s). Skipping update check.",
+                        "[%s] Custom firmware build detected (variant: %s, version: %s). Skipping update check.",
                         self._cfg.mac,
                         variant,
+                        version,
                     )
 
         availability_topics = self.get_availability_topics()
@@ -215,6 +232,7 @@ class TasmotaUpdate(TasmotaAvailability, TasmotaEntity):
 
     async def poll_status(self) -> None:
         """Poll for status."""
+        _LOGGER.debug("[%s] Polling for firmware status", self._cfg.mac)
         await self.subscribe_topics()
         await self._mqtt_client.publish_debounced(
             self._cfg.poll_topic, self._cfg.poll_payload

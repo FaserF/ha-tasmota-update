@@ -5,7 +5,6 @@ from __future__ import annotations
 from typing import Any
 
 import voluptuous as vol
-
 from homeassistant.components.mqtt import valid_subscribe_topic
 from homeassistant.config_entries import ConfigFlow, ConfigFlowResult
 from homeassistant.helpers.service_info.mqtt import MqttServiceInfo
@@ -75,7 +74,9 @@ class FlowHandler(ConfigFlow, domain=DOMAIN):
             else:
                 data[CONF_DISCOVERY_PREFIX] = prefix
             if not bad_prefix:
-                return self.async_create_entry(title="Tasmota Firmware Update", data=data)
+                return self.async_create_entry(
+                    title="Tasmota Firmware Update", data=data
+                )
 
         fields = {}
         fields[vol.Optional(CONF_DISCOVERY_PREFIX, default=self._prefix)] = str

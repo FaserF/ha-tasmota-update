@@ -2,10 +2,6 @@
 
 from __future__ import annotations
 
-from .hatasmota.const import AUTOMATION_TYPE_TRIGGER
-from .hatasmota.models import DiscoveryHashType
-from .hatasmota.trigger import TasmotaTrigger
-
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import Event, HomeAssistant, callback
 from homeassistant.helpers.device_registry import (
@@ -17,6 +13,9 @@ from homeassistant.helpers.dispatcher import async_dispatcher_connect
 from . import device_trigger
 from .const import DATA_REMOVE_DISCOVER_COMPONENT, DATA_UNSUB
 from .discovery import TASMOTA_DISCOVERY_ENTITY_NEW
+from .hatasmota.const import AUTOMATION_TYPE_TRIGGER
+from .hatasmota.models import DiscoveryHashType
+from .hatasmota.trigger import TasmotaTrigger
 
 
 async def async_remove_automations(hass: HomeAssistant, device_id: str) -> None:

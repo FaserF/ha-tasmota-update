@@ -9,25 +9,26 @@ from datetime import datetime, timedelta
 from typing import Any
 
 import aiohttp
-from packaging.version import Version, InvalidVersion
-
 from homeassistant.components import update
 from homeassistant.components.update import UpdateEntity, UpdateEntityFeature
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant, callback
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
-from homeassistant.helpers.dispatcher import async_dispatcher_connect, async_dispatcher_send
+from homeassistant.helpers.dispatcher import (
+    async_dispatcher_connect,
+    async_dispatcher_send,
+)
 from homeassistant.helpers.entity_platform import AddConfigEntryEntitiesCallback
 from homeassistant.helpers.event import async_track_time_interval
 from homeassistant.util import dt as dt_util
-
-from .hatasmota import TasmotaUpdate
-from .hatasmota.entity import TasmotaEntity as HATasmotaEntity
-from .hatasmota.models import DiscoveryHashType
+from packaging.version import InvalidVersion, Version
 
 from .const import DATA_REMOVE_DISCOVER_COMPONENT, DOMAIN
 from .discovery import TASMOTA_DISCOVERY_ENTITY_NEW
 from .entity import TasmotaAvailability, TasmotaDiscoveryUpdate, TasmotaEntity
+from .hatasmota import TasmotaUpdate
+from .hatasmota.entity import TasmotaEntity as HATasmotaEntity
+from .hatasmota.models import DiscoveryHashType
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -90,9 +91,13 @@ async def _fetch_latest_release(hass: HomeAssistant) -> dict[str, Any] | None:
                 if release_notes:
                     # Take first paragraph or first 250 chars
                     first_para = release_notes.split("\n\n")[0]
-                    release_summary = first_para[:250] + "..." if len(first_para) > 250 else first_para
+                    release_summary = (
+                        first_para[:250] + "..."
+                        if len(first_para) > 250
+                        else first_para
+                    )
                     # Clean up markdown for summary
-                    release_summary = re.sub(r'[#*`]', '', release_summary).strip()
+                    release_summary = re.sub(r"[#*`]", "", release_summary).strip()
 
                 _LOGGER.debug(
                     "Fetched latest Tasmota release: %s (%s)",
@@ -138,19 +143,20 @@ async def async_setup_entry(
     async def _refresh_latest_release(_now: datetime | None = None) -> None:
         """Refresh the cached release info."""
         release_info = await _fetch_latest_release(hass)
+        _LOGGER.debug("Refresh latest release info: %s", release_info)
         if release_info:
             _release_cache.update(release_info)
             _release_cache["last_check"] = _now
             # Notify all update entities to refresh
-            async_dispatcher_send(
-                hass, f"{DOMAIN}_release_update", release_info
-            )
+            async_dispatcher_send(hass, f"{DOMAIN}_release_update", release_info)
 
     # Initial fetch
     await _refresh_latest_release()
 
     # Schedule periodic refresh (every 24 hours)
-    unsub = async_track_time_interval(hass, _refresh_latest_release, VERSION_CHECK_INTERVAL)
+    unsub = async_track_time_interval(
+        hass, _refresh_latest_release, VERSION_CHECK_INTERVAL
+    )
 
     # Store unsub for cleanup
     if DOMAIN not in hass.data:
@@ -163,6 +169,7 @@ async def async_setup_entry(
         tasmota_entity: HATasmotaEntity, discovery_hash: DiscoveryHashType
     ) -> None:
         """Discover and add a Tasmota update."""
+        _LOGGER.debug("Discovering Tasmota update entity: %s", discovery_hash)
         async_add_entities(
             [
                 TasmotaUpdateEntity(
@@ -199,7 +206,7 @@ class TasmotaUpdateEntity(
             | UpdateEntityFeature.RELEASE_NOTES
         )
         self._attr_title = "Tasmota"
-        self._attr_installed_version = None
+        self._attr_installed_version: str | None = None
         self._attr_latest_version = _release_cache.get("version")
         self._attr_release_url = _release_cache.get("release_url")
         self._attr_release_summary = _release_cache.get("release_summary")
@@ -338,7 +345,8 @@ class TasmotaUpdateEntity(
         if self._update_in_progress and self._update_started:
             if dt_util.utcnow() - self._update_started > UPDATE_TIMEOUT:
                 _LOGGER.warning(
-                    "Firmware update timed out after %s", UPDATE_TIMEOUT,
+                    "Firmware update timed out after %s",
+                    UPDATE_TIMEOUT,
                 )
                 self._update_in_progress = False
                 self._suppress_availability_updates = False
@@ -369,6 +377,12 @@ class TasmotaUpdateEntity(
                 self._version_before_update = None
                 self._update_started = None
 
+        _LOGGER.debug(
+            "[%s] Tasmota version update: current=%s, new=%s",
+            self._tasmota_entity.mac,
+            self._attr_installed_version,
+            new_version,
+        )
         self._attr_installed_version = new_version
         self.async_write_ha_state()
 

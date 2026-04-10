@@ -2,9 +2,9 @@
 
 from __future__ import annotations
 
-from dataclasses import dataclass
 import logging
 import string
+from dataclasses import dataclass
 from typing import Any
 
 from .const import (
@@ -335,7 +335,7 @@ class TasmotaSensor(TasmotaAvailability, TasmotaEntity):
                         state = state[last_node]
                     elif last_node != 0:
                         return
-                except (IndexError, KeyError):
+                except IndexError, KeyError:
                     return
                 if last_reset_path:
                     if last_reset := get_value_by_path(msg.payload, last_reset_path):

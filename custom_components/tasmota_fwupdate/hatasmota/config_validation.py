@@ -16,7 +16,7 @@ positive_int = vol.All(  # pylint: disable=invalid-name
 )
 
 
-def ensure_list(value: T | list[T] | None) -> list[T]:
+def ensure_list[T](value: T | list[T] | None) -> list[T]:
     """Wrap value in list if it is not one."""
     if value is None:
         return []

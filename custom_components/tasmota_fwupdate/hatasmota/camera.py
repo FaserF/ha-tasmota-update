@@ -2,9 +2,9 @@
 
 from __future__ import annotations
 
+import logging
 from collections.abc import Awaitable
 from dataclasses import dataclass
-import logging
 from typing import Any
 
 from aiohttp import ClientResponse, ClientSession

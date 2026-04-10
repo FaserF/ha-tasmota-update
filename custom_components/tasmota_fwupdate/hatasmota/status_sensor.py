@@ -3,10 +3,10 @@
 from __future__ import annotations
 
 import asyncio
-from dataclasses import dataclass
-from datetime import datetime, timedelta, timezone
 import json
 import logging
+from dataclasses import dataclass
+from datetime import UTC, datetime, timedelta
 from typing import Any
 
 from .const import (
@@ -240,7 +240,7 @@ class TasmotaStatusSensor(TasmotaAvailability, TasmotaEntity):
                 if self._cfg.sensor in SINGLE_SHOT:
                     asyncio.create_task(self._unsubscribe_state_topics())
                 if self._cfg.sensor == SENSOR_STATUS_LAST_RESTART_TIME:
-                    state = datetime.now(timezone.utc) - timedelta(seconds=int(state))
+                    state = datetime.now(UTC) - timedelta(seconds=int(state))
                 self._on_state_callback(state)
 
         availability_topics = self.get_availability_topics()

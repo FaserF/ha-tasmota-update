@@ -4,8 +4,8 @@ from homeassistant.const import Platform
 
 CONF_DISCOVERY_PREFIX = "discovery_prefix"
 
-DATA_REMOVE_DISCOVER_COMPONENT = "tasmota_discover_{}"
-DATA_UNSUB = "tasmota_subscriptions"
+DATA_REMOVE_DISCOVER_COMPONENT = "tasmota_fwupdate_discover_{}"
+DATA_UNSUB = "tasmota_fwupdate_subscriptions"
 
 DEFAULT_PREFIX = "tasmota/discovery"
 
@@ -15,4 +15,4 @@ PLATFORMS = [
     Platform.UPDATE,
 ]
 
-TASMOTA_EVENT = "tasmota_event"
+TASMOTA_EVENT = "tasmota_fwupdate_event"

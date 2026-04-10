@@ -3,8 +3,8 @@
 from __future__ import annotations
 
 import colorsys
-from dataclasses import dataclass
 import logging
+from dataclasses import dataclass
 from typing import Any, cast
 
 from .const import (
@@ -455,7 +455,7 @@ class TasmotaLight(TasmotaAvailability, TasmotaEntity):
 
         # Scale transition to the channel with the largest brightness change
         abs_changes = map(
-            abs, [x1 - x2 for (x1, x2) in zip(now_channels, new_channels)]
+            abs, [x1 - x2 for (x1, x2) in zip(now_channels, new_channels, strict=False)]
         )
         # Mypy is confused about the map, override the inferred typing
         if (delta_ratio := max(abs_changes)) == 0:

@@ -5,15 +5,10 @@ from __future__ import annotations
 import logging
 from typing import Any
 
-from .hatasmota.entity import (
-    TasmotaAvailability as HATasmotaAvailability,
-    TasmotaEntity as HATasmotaEntity,
-    TasmotaEntityConfig,
-)
-from .hatasmota.models import DiscoveryHashType
-
 from homeassistant.components.mqtt import (
     async_subscribe_connection_status,
+)
+from homeassistant.components.mqtt import (
     is_connected as mqtt_connected,
 )
 from homeassistant.core import callback
@@ -26,6 +21,16 @@ from .discovery import (
     clear_discovery_hash,
     set_discovery_hash,
 )
+from .hatasmota.entity import (
+    TasmotaAvailability as HATasmotaAvailability,
+)
+from .hatasmota.entity import (
+    TasmotaEntity as HATasmotaEntity,
+)
+from .hatasmota.entity import (
+    TasmotaEntityConfig,
+)
+from .hatasmota.models import DiscoveryHashType
 
 _LOGGER = logging.getLogger(__name__)
 

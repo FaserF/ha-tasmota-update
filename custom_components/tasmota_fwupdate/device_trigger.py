@@ -2,21 +2,19 @@
 
 from __future__ import annotations
 
-from collections.abc import Callable
 import logging
+from collections.abc import Callable
 
 import attr
-from .hatasmota.models import DiscoveryHashType
-from .hatasmota.trigger import TasmotaTrigger, TasmotaTriggerConfig
 import voluptuous as vol
-
 from homeassistant.components.device_automation import DEVICE_TRIGGER_BASE_SCHEMA
 from homeassistant.components.homeassistant.triggers import event as event_trigger
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import CONF_DEVICE_ID, CONF_DOMAIN, CONF_PLATFORM, CONF_TYPE
 from homeassistant.core import CALLBACK_TYPE, HomeAssistant, callback
 from homeassistant.exceptions import HomeAssistantError
-from homeassistant.helpers import config_validation as cv, device_registry as dr
+from homeassistant.helpers import config_validation as cv
+from homeassistant.helpers import device_registry as dr
 from homeassistant.helpers.device_registry import CONNECTION_NETWORK_MAC
 from homeassistant.helpers.dispatcher import async_dispatcher_connect
 from homeassistant.helpers.trigger import TriggerActionType, TriggerInfo
@@ -24,6 +22,8 @@ from homeassistant.helpers.typing import ConfigType
 
 from .const import DOMAIN, TASMOTA_EVENT
 from .discovery import TASMOTA_DISCOVERY_ENTITY_UPDATED, clear_discovery_hash
+from .hatasmota.models import DiscoveryHashType
+from .hatasmota.trigger import TasmotaTrigger, TasmotaTriggerConfig
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -42,7 +42,7 @@ TRIGGER_SCHEMA = DEVICE_TRIGGER_BASE_SCHEMA.extend(
     }
 )
 
-DEVICE_TRIGGERS = "tasmota_device_triggers"
+DEVICE_TRIGGERS = "tasmota_fwupdate_device_triggers"
 
 
 @attr.s(slots=True)
@@ -266,7 +266,8 @@ async def async_remove_triggers(hass: HomeAssistant, device_id: str) -> None:
             assert device_trigger.tasmota_trigger
             await device_trigger.tasmota_trigger.unsubscribe_topics()
             device_trigger.detach_trigger()
-            clear_discovery_hash(hass, discovery_hash)
+            if discovery_hash:
+                clear_discovery_hash(hass, discovery_hash)
             assert device_trigger.remove_update_signal
             device_trigger.remove_update_signal()
 
@@ -287,7 +288,7 @@ async def async_get_triggers(
 
         trigger = {
             "platform": "device",
-            "domain": "tasmota",
+            "domain": DOMAIN,
             "device_id": device_id,
             "type": trig.type,
             "subtype": trig.subtype,

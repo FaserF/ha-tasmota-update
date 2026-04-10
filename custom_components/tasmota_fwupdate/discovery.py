@@ -2,19 +2,39 @@
 
 from __future__ import annotations
 
-from collections.abc import Awaitable, Callable
 import logging
+from collections.abc import Awaitable, Callable
 from typing import TypedDict, cast
 
+from homeassistant.components import sensor
+from homeassistant.config_entries import ConfigEntry
+from homeassistant.core import HomeAssistant
+from homeassistant.helpers import (
+    device_registry as dr,
+)
+from homeassistant.helpers import (
+    entity_registry as er,
+)
+from homeassistant.helpers import (
+    issue_registry as ir,
+)
+from homeassistant.helpers.dispatcher import async_dispatcher_send
+from homeassistant.helpers.entity_registry import async_entries_for_device
+
+from .const import DOMAIN, PLATFORMS
 from .hatasmota import const as tasmota_const
 from .hatasmota.discovery import (
     TasmotaDiscovery,
-    get_device_config as tasmota_get_device_config,
-    get_entities_for_platform as tasmota_get_entities_for_platform,
-    get_entity as tasmota_get_entity,
-    get_trigger as tasmota_get_trigger,
-    get_triggers as tasmota_get_triggers,
     unique_id_from_hash,
+)
+from .hatasmota.discovery import (
+    get_device_config as tasmota_get_device_config,
+)
+from .hatasmota.discovery import (
+    get_entities_for_platform as tasmota_get_entities_for_platform,
+)
+from .hatasmota.discovery import (
+    get_entity as tasmota_get_entity,
 )
 from .hatasmota.entity import TasmotaEntityConfig
 from .hatasmota.models import DiscoveryHashType, TasmotaDeviceConfig
@@ -22,26 +42,15 @@ from .hatasmota.mqtt import TasmotaMQTTClient
 from .hatasmota.sensor import TasmotaBaseSensorConfig
 from .hatasmota.utils import get_topic_command, get_topic_stat
 
-from homeassistant.components import sensor
-from homeassistant.config_entries import ConfigEntry
-from homeassistant.core import HomeAssistant
-from homeassistant.helpers import (
-    device_registry as dr,
-    entity_registry as er,
-    issue_registry as ir,
-)
-from homeassistant.helpers.dispatcher import async_dispatcher_send
-from homeassistant.helpers.entity_registry import async_entries_for_device
-
-from .const import DOMAIN, PLATFORMS
-
 _LOGGER = logging.getLogger(__name__)
 
-ALREADY_DISCOVERED = "tasmota_discovered_components"
-DISCOVERY_DATA = "tasmota_discovery_data"
-TASMOTA_DISCOVERY_ENTITY_NEW = "tasmota_discovery_entity_new_{}"
-TASMOTA_DISCOVERY_ENTITY_UPDATED = "tasmota_discovery_entity_updated_{}_{}_{}_{}"
-TASMOTA_DISCOVERY_INSTANCE = "tasmota_discovery_instance"
+ALREADY_DISCOVERED = "tasmota_fwupdate_discovered_components"
+DISCOVERY_DATA = "tasmota_fwupdate_discovery_data"
+TASMOTA_DISCOVERY_ENTITY_NEW = "tasmota_fwupdate_discovery_entity_new_{}"
+TASMOTA_DISCOVERY_ENTITY_UPDATED = (
+    "tasmota_fwupdate_discovery_entity_updated_{}_{}_{}_{}"
+)
+TASMOTA_DISCOVERY_INSTANCE = "tasmota_fwupdate_discovery_instance"
 
 MQTT_TOPIC_URL = "https://tasmota.github.io/docs/Home-Assistant/#tasmota-integration"
 
@@ -259,36 +268,36 @@ async def async_start(  # noqa: C901
             # entities or triggers
             return
 
-        tasmota_triggers = tasmota_get_triggers(payload)
-        for trigger_config in tasmota_triggers:
-            discovery_hash: DiscoveryHashType = (
-                mac,
-                "automation",
-                "trigger",
-                trigger_config.trigger_id,
-            )
-            if discovery_hash in hass.data[ALREADY_DISCOVERED]:
-                _LOGGER.debug(
-                    "Trigger already added, sending update: %s",
-                    discovery_hash,
-                )
-                async_dispatcher_send(
-                    hass,
-                    TASMOTA_DISCOVERY_ENTITY_UPDATED.format(*discovery_hash),
-                    trigger_config,
-                )
-            elif trigger_config.is_active:
-                _LOGGER.debug("Adding new trigger: %s", discovery_hash)
-                hass.data[ALREADY_DISCOVERED][discovery_hash] = None
+        # tasmota_triggers = tasmota_get_triggers(payload)
+        # for trigger_config in tasmota_triggers:
+        #     discovery_hash: DiscoveryHashType = (
+        #         mac,
+        #         "automation",
+        #         "trigger",
+        #         trigger_config.trigger_id,
+        #     )
+        #     if discovery_hash in hass.data[ALREADY_DISCOVERED]:
+        #         _LOGGER.debug(
+        #             "Trigger already added, sending update: %s",
+        #             discovery_hash,
+        #         )
+        #         async_dispatcher_send(
+        #             hass,
+        #             TASMOTA_DISCOVERY_ENTITY_UPDATED.format(*discovery_hash),
+        #             trigger_config,
+        #         )
+        #     elif trigger_config.is_active:
+        #         _LOGGER.debug("Adding new trigger: %s", discovery_hash)
+        #         hass.data[ALREADY_DISCOVERED][discovery_hash] = None
 
-                tasmota_trigger = tasmota_get_trigger(trigger_config, tasmota_mqtt)
+        #         tasmota_trigger = tasmota_get_trigger(trigger_config, tasmota_mqtt)
 
-                async_dispatcher_send(
-                    hass,
-                    TASMOTA_DISCOVERY_ENTITY_NEW.format("device_automation"),
-                    tasmota_trigger,
-                    discovery_hash,
-                )
+        #         async_dispatcher_send(
+        #             hass,
+        #             TASMOTA_DISCOVERY_ENTITY_NEW.format("device_automation"),
+        #             tasmota_trigger,
+        #             discovery_hash,
+        #         )
 
         for platform in PLATFORMS:
             tasmota_entities = tasmota_get_entities_for_platform(payload, platform)
