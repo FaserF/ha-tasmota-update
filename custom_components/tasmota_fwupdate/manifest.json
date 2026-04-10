@@ -9,6 +9,7 @@
     "mqtt"
   ],
   "documentation": "https://github.com/FaserF/ha-tasmota-update",
+  "issue_tracker": "https://github.com/FaserF/ha-tasmota-update/issues",
   "iot_class": "local_push",
   "loggers": [
     "hatasmota"

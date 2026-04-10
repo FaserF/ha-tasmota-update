@@ -6,7 +6,9 @@
 [![Maintainability][maintainability-shield]][maintainability]
 
 This custom integration provides firmware update functionality for Tasmota devices in Home Assistant. It works alongside the official Tasmota integration and adds an `update` entity to existing Tasmota devices, mapping them via MAC address.
-This custom integration is only needed until (this Pull Request has been merged)[https://github.com/emontnemery/hatasmota/pull/389]. More information (are available here)[https://github.com/emontnemery/hatasmota/issues/151].
+
+This custom integration is only needed until [this Pull Request has been merged](https://github.com/emontnemery/hatasmota/pull/389).
+More information [are available here](https://github.com/emontnemery/hatasmota/issues/151).
 
 ## Features
 
@@ -15,14 +17,15 @@ This custom integration is only needed until (this Pull Request has been merged)
 - **Release Notes**: Fetches and displays release notes from the official Tasmota GitHub repository.
 - **Coexistence**: Designed to work perfectly with the official Tasmota integration.
 
-## Installation
+### HACS (Recommended)
 
-### HACS-
-1. Open HACS in Home Assistant.
-2. Click on the three dots in the top right corner and select "Custom repositories".
-3. Add `https://github.com/FaserF/ha-tasmota-update` with category "Integration".
-4. Search for "Tasmota Firmware Update" and install it.
-5. Restart Home Assistant.
+This integration is fully compatible with [HACS](https://hacs.xyz/).
+
+[![Open your Home Assistant instance and open a repository inside the Home Assistant Community Store.](https://my.home-assistant.io/badges/hacs_repository.svg)](https://my.home-assistant.io/redirect/hacs_repository/?repository=FaserF/ha-tasmota-update&category=integration)
+
+1. Click the button above to add the custom repository to HACS.
+2. Search for "Tasmota Firmware Update".
+3. Install and restart Home Assistant.
 
 ### Manual
 1. Download the `tasmota_fwupdate` folder from `custom_components` in this repository.
