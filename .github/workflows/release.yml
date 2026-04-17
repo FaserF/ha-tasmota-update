@@ -159,7 +159,7 @@ jobs:
         run: |
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action"
-          git add pyproject.toml custom_components/openwrt/manifest.json
+          git add pyproject.toml custom_components/tasmota_fwupdate/manifest.json
           # Only commit if there are changes
           if ! git diff --staged --quiet; then
             git commit -m "chore: bump version to ${{ env.NEW_VERSION }} [skip ci]"
@@ -167,6 +167,12 @@ jobs:
           git pull --rebase origin main
           git tag v${{ env.NEW_VERSION }}
           git push origin main --tags
+
+      - name: 📦 Zip Component
+        run: |
+          cd custom_components
+          zip -r ../tasmota_fwupdate.zip tasmota_fwupdate
+          cd ..
 
       - name: Create Release
         uses: softprops/action-gh-release@v2
@@ -176,5 +182,6 @@ jobs:
           body_path: CHANGELOG_BODY.md
           draft: false
           prerelease: ${{ github.event.inputs.release_status == 'beta' }}
+          files: tasmota_fwupdate.zip
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
