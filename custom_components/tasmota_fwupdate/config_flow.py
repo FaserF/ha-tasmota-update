@@ -12,7 +12,7 @@ from homeassistant.helpers.service_info.mqtt import MqttServiceInfo
 from .const import CONF_DISCOVERY_PREFIX, DEFAULT_PREFIX, DOMAIN
 
 
-class FlowHandler(ConfigFlow, domain=DOMAIN):
+class FlowHandler(ConfigFlow, domain=DOMAIN):  # type: ignore
     """Handle a config flow."""
 
     VERSION = 1
