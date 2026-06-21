@@ -1,20 +1,49 @@
 name: Bug Report
-description: Create a report to help us improve the Tasmota Firmware Update integration
+description: Report a bug with the Tasmota Update integration
 title: '[Bug]: '
 labels: ['bug', 'triage']
+assignees:
+  - FaserF
 body:
   - type: markdown
     attributes:
       value: |
-        Thanks for taking the time to fill out this bug report!
+        ## Before you open a bug report
+        - 🔍 Search [existing issues](https://github.com/FaserF/ha-tasmota-update/issues) first — your bug may already be reported
+        - 📖 Read the [documentation](https://github.com/FaserF/ha-tasmota-update/blob/master/README.md)
+        - 🔗 Check the integration on your HA instance: [![Open your Home Assistant instance and show an integration.](https://my.home-assistant.io/badges/integration.svg)](https://my.home-assistant.io/redirect/integration/?domain=tasmota_update)
+
   - type: input
-    id: version
+    id: integration_version
     attributes:
       label: Integration Version
-      description: Which version of this integration are you using?
+      description: Which version of the Tasmota Update integration are you running?
       placeholder: v1.0.0
     validations:
       required: true
+
+  - type: input
+    id: ha_version
+    attributes:
+      label: Home Assistant Version
+      description: |
+        [![Open your Home Assistant instance and show your Home Assistant version information.](https://my.home-assistant.io/badges/info.svg)](https://my.home-assistant.io/redirect/info/)
+      placeholder: 2025.6.0
+    validations:
+      required: true
+
+  - type: dropdown
+    id: ha_installation_type
+    attributes:
+      label: Home Assistant Installation Type
+      options:
+        - Home Assistant OS
+        - Home Assistant Container
+        - Home Assistant Supervised
+        - Home Assistant Core
+    validations:
+      required: true
+
   - type: input
     id: tasmota_version
     attributes:
@@ -23,26 +52,83 @@ body:
       placeholder: 14.3.0
     validations:
       required: true
+
+  - type: input
+    id: device_type
+    attributes:
+      label: Device Type
+      description: What kind of Tasmota device are you using?
+      placeholder: e.g. Sonoff Basic, Shelly, WLED
+    validations:
+      required: false
+
   - type: dropdown
     id: update_source
     attributes:
       label: Update Source
-      description: Where is the integration fetching the update from?
+      description: Which OTA update source are you using?
       options:
         - Official Tasmota OTA (Default)
         - Custom URL
     validations:
       required: true
-  - type: textarea
-    id: description
+
+  - type: dropdown
+    id: number_of_devices
     attributes:
-      label: Describe the bug
+      label: Number of Tasmota Devices
+      options:
+        - 1-5
+        - 6-20
+        - 20+
+    validations:
+      required: false
+
+  - type: textarea
+    id: describe_bug
+    attributes:
+      label: Describe the Bug
       description: A clear and concise description of what the bug is.
     validations:
       required: true
+
+  - type: textarea
+    id: steps_to_reproduce
+    attributes:
+      label: Steps to Reproduce
+      description: Steps to reproduce the behavior.
+      placeholder: |
+        1. Go to '...'
+        2. Click on '...'
+        3. See error
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected_behavior
+    attributes:
+      label: Expected Behavior
+      description: What did you expect to happen?
+    validations:
+      required: true
+
+  - type: textarea
+    id: diagnostics
+    attributes:
+      label: Diagnostic Information
+      description: |
+        [![Open your Home Assistant instance and show the diagnostics for your integration.](https://my.home-assistant.io/badges/diagnostics.svg)](https://my.home-assistant.io/redirect/diagnostics/)
+
+        Paste the diagnostic YAML here (optional but very helpful).
+      render: yaml
+    validations:
+      required: false
+
   - type: textarea
     id: logs
     attributes:
-      label: Relevant log output
-      description: Please copy and paste any relevant log output. Use the integration's debug logging if possible.
+      label: Relevant Log Output
+      description: Enable debug logging and paste relevant output here. Go to **Settings → System → Logs**.
       render: shell
+    validations:
+      required: false

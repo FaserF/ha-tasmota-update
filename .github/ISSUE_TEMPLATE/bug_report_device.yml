@@ -1,0 +1,74 @@
+name: Device-Specific Bug Report
+description: Report a bug that only affects a specific Tasmota device type or firmware variant
+title: '[Bug][Device]: '
+labels: ['bug', 'triage', 'device-specific']
+assignees:
+  - FaserF
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Use this template if the issue is specific to a **particular Tasmota device** or firmware variant.
+
+        Before submitting, please check:
+        - 📋 [Existing issues](https://github.com/FaserF/ha-tasmota-update/issues)
+        - 📖 [Documentation](https://github.com/FaserF/ha-tasmota-update/blob/master/README.md)
+
+  - type: input
+    id: version
+    attributes:
+      label: Integration Version
+      placeholder: v1.0.0
+    validations:
+      required: true
+
+  - type: input
+    id: ha_version
+    attributes:
+      label: Home Assistant Version
+      description: |
+        [![Open your Home Assistant instance and show your Home Assistant version information.](https://my.home-assistant.io/badges/info.svg)](https://my.home-assistant.io/redirect/info/)
+      placeholder: 2025.6.0
+    validations:
+      required: true
+
+  - type: input
+    id: device_model
+    attributes:
+      label: Device Model
+      description: Exact device model and manufacturer
+      placeholder: e.g. Sonoff Basic R2, Athom Plug V2
+    validations:
+      required: true
+
+  - type: input
+    id: tasmota_version
+    attributes:
+      label: Tasmota Version
+      placeholder: e.g. 14.3.0
+    validations:
+      required: true
+
+  - type: input
+    id: tasmota_variant
+    attributes:
+      label: Tasmota Variant
+      description: Are you using a specific Tasmota variant?
+      placeholder: e.g. tasmota-minimal, tasmota-sensors, tasmota-display
+    validations:
+      required: false
+
+  - type: textarea
+    id: description
+    attributes:
+      label: Describe the device-specific issue
+    validations:
+      required: true
+
+  - type: textarea
+    id: logs
+    attributes:
+      label: Relevant log output
+      render: shell
+    validations:
+      required: false

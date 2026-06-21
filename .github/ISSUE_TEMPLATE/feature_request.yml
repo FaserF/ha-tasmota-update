@@ -1,28 +1,61 @@
 name: Feature Request
-description: Suggest an idea for this integration
+description: Suggest a new feature or improvement for the Tasmota Update integration
 title: '[Feature]: '
 labels: ['enhancement', 'triage']
+assignees:
+  - FaserF
 body:
   - type: markdown
     attributes:
       value: |
-        Thanks for taking the time to fill out this feature request!
+        ## Feature Request
+        Thank you for suggesting an improvement! Please fill out the form below to help us understand your request.
+        - 🔍 Search [existing feature requests](https://github.com/FaserF/ha-tasmota-update/issues?q=is%3Aissue+label%3Aenhancement) before submitting
+
   - type: textarea
-    id: description
+    id: problem_description
     attributes:
-      label: Is your feature request related to a problem? Please describe.
-      description: A clear and concise description of what the problem is. Ex. I'm always frustrated when...
+      label: Problem Description
+      description: Is your feature request related to a problem? Please describe it clearly.
+      placeholder: I'm frustrated when...
     validations:
       required: true
+
   - type: textarea
-    id: solution
+    id: solution_description
     attributes:
-      label: Describe the solution you'd like
-      description: A clear and concise description of what you want to happen.
+      label: Proposed Solution
+      description: Describe the feature or improvement you'd like to see.
     validations:
       required: true
+
+  - type: dropdown
+    id: feature_area
+    attributes:
+      label: Feature Area
+      description: Which area of the integration does this feature relate to?
+      options:
+        - Update detection / version tracking
+        - Custom OTA server support
+        - Multiple device management
+        - Automatic update triggering
+        - Sensor / entity improvements
+        - Other
+    validations:
+      required: true
+
   - type: textarea
     id: alternatives
     attributes:
-      label: Describe alternatives you've considered
-      description: A clear and concise description of any alternative solutions or features you've considered.
+      label: Alternatives Considered
+      description: Describe any alternative solutions or workarounds you have considered.
+    validations:
+      required: false
+
+  - type: textarea
+    id: additional_context
+    attributes:
+      label: Additional Context
+      description: Add any other context, screenshots, or links related to the feature request.
+    validations:
+      required: false
