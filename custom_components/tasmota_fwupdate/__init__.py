@@ -47,7 +47,13 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         qos: int | None,
         retain: bool | None,
     ) -> None:
-        await mqtt.async_publish(hass, topic, payload, qos, retain)
+        await mqtt.async_publish(
+            hass,
+            topic,
+            payload,
+            qos if qos is not None else 0,
+            retain if retain is not None else False,
+        )
 
     async def _subscribe_topics(sub_state: dict | None, topics: dict) -> dict:
         # Optionally mark message handlers as callback
