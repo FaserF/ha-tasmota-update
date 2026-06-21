@@ -42,6 +42,7 @@ OFFICIAL_VARIANTS = {
     "display",
     "zbbridge",
     "zigbee",
+    "4M",
     # ESP32 Family
     "tasmota32",
     "tasmota32solo1",

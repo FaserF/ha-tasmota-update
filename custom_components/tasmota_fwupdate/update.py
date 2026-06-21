@@ -207,6 +207,7 @@ class TasmotaUpdateEntity(
         )
         self._attr_title = "Tasmota"
         self._attr_installed_version: str | None = None
+        self._installed_version_raw: str | None = None
         self._attr_latest_version = _release_cache.get("version")
         self._attr_release_url = _release_cache.get("release_url")
         self._attr_release_summary = _release_cache.get("release_summary")
@@ -216,6 +217,38 @@ class TasmotaUpdateEntity(
         self._suppress_availability_updates: bool = False
         self._update_started: datetime | None = None
         self._unsupported_reason: str | None = None
+
+    def _get_upgrade_url(self) -> str:
+        """Get the upgrade URL for the current variant."""
+        if not self._installed_version_raw:
+            return LATEST_URL
+
+        match = re.match(r"^(?P<version>[0-9.]+)\((?P<variant>.*)\)$", self._installed_version_raw)
+        if not match:
+            return LATEST_URL
+
+        variant = match.group("variant")
+        if variant.startswith("release-"):
+            variant = variant[8:]
+
+        # ESP32 builds
+        if "tasmota32" in variant or variant in [
+            "bluetooth",
+            "lvgl",
+            "nspanel",
+            "webcam",
+            "zbbridgepro",
+        ]:
+            filename = variant
+            if not filename.startswith("tasmota32"):
+                filename = f"tasmota32-{filename}"
+            return f"http://ota.tasmota.com/tasmota32/release/{filename}.bin"
+
+        # ESP8266 builds
+        filename = variant
+        if filename != "tasmota" and not filename.startswith("tasmota-"):
+            filename = f"tasmota-{filename}"
+        return f"http://ota.tasmota.com/tasmota/release/{filename}.bin.gz"
 
     def _get_next_upgrade_target(self) -> tuple[str | None, str | None]:
         """Calculate next upgrade target version and URL based on staged upgrade path.
@@ -239,7 +272,7 @@ class TasmotaUpdateEntity(
                 return str(target_version), url
 
         # Version >= 9.1.0, can upgrade directly to latest
-        return self._attr_latest_version, LATEST_URL
+        return self._attr_latest_version, self._get_upgrade_url()
 
     @property
     def latest_version(self) -> str | None:
@@ -348,6 +381,7 @@ class TasmotaUpdateEntity(
     @callback
     def _on_state_callback(self, version: str) -> None:
         """Update the version."""
+        self._installed_version_raw = version
         new_version = _parse_installed_version(version)
 
         # Check for update timeout
