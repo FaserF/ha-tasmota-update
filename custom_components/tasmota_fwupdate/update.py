@@ -223,7 +223,9 @@ class TasmotaUpdateEntity(
         if not self._installed_version_raw:
             return LATEST_URL
 
-        match = re.match(r"^(?P<version>[0-9.]+)\((?P<variant>.*)\)$", self._installed_version_raw)
+        match = re.match(
+            r"^(?P<version>[0-9.]+)\((?P<variant>.*)\)$", self._installed_version_raw
+        )
         if not match:
             return LATEST_URL
 
