@@ -180,3 +180,6 @@ ruff_errors.json
 *.txt
 *output*.json
 test_live.py
+
+.ruff_cache/
+*.pyc
