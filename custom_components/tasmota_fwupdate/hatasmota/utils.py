@@ -184,7 +184,7 @@ def get_value_by_path(status: dict | ReceivePayloadType, path: list[str | int]) 
         if not isinstance(status, Mapping):
             status = json.loads(status)
         return get_by_path(cast(dict, status), path)
-    except json.decoder.JSONDecodeError, KeyError:
+    except (json.decoder.JSONDecodeError, KeyError):
         return None
 
 
