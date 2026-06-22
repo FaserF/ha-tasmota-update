@@ -210,7 +210,8 @@ jobs:
 
       - name: 📦 Zip Component
         run: |
-          zip -r tasmota_fwupdate.zip custom_components/tasmota_fwupdate
+          cd custom_components/tasmota_fwupdate
+          zip -r ../../tasmota_fwupdate.zip .
 
       - name: Download Release Body Artifact
         uses: actions/download-artifact@v8
