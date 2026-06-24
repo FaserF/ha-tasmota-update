@@ -10,6 +10,22 @@ This custom integration provides firmware update functionality for Tasmota devic
 This custom integration is only needed until [this Pull Request has been merged](https://github.com/emontnemery/hatasmota/pull/389).
 More information [are available here](https://github.com/emontnemery/hatasmota/issues/151).
 
+---
+
+## ❤️ Support This Project
+
+> I maintain this integration in my **free time alongside my regular job** — bug hunting, new features, and testing on real hardware. Test devices cost money, and every donation helps me stay independent and free up more time for open-source work.
+>
+> Donations are completely voluntary — but the more support I receive, the less I depend on other income sources and the more time I can realistically invest into these GitHub projects. 💪
+
+<div align="center">
+
+[![GitHub Sponsors](https://img.shields.io/badge/Sponsor%20on-GitHub-%23EA4AAA?style=for-the-badge&logo=github-sponsors&logoColor=white)](https://github.com/sponsors/FaserF)&nbsp;&nbsp;
+[![PayPal](https://img.shields.io/badge/Donate%20via-PayPal-%2300457C?style=for-the-badge&logo=paypal&logoColor=white)](https://paypal.me/FaserF)
+
+</div>
+
+---
 ## Features
 
 - **Standard Update Entities**: Adds official Home Assistant `update` entities to your Tasmota devices.
@@ -18,6 +34,7 @@ More information [are available here](https://github.com/emontnemery/hatasmota/i
 - **Coexistence**: Designed to work perfectly with the official Tasmota integration.
 
 ### HACS (Recommended)
+[![Downloads (Current release)](https://img.shields.io/github/downloads/FaserF/ha-tasmota-update/latest/tasmota_fwupdate.zip?label=Downloads%20(Current%20release)&style=for-the-badge)](https://github.com/FaserF/ha-tasmota-update/releases)
 
 This integration is fully compatible with [HACS](https://hacs.xyz/).
 
