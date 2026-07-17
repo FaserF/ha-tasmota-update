@@ -245,6 +245,7 @@ jobs:
             # Update the existing draft release to publish it
             gh api -X PATCH "repos/$REPO/releases/$release_id" \
               -f tag_name="$TAG" \
+              -f target_commitish="${{ github.ref_name }}" \
               -f name="Release $VERSION" \
               -f body_path="release_body.md" \
               -F draft=false \
@@ -255,6 +256,7 @@ jobs:
           else
             # Create a brand new release if no draft exists
             gh release create "$TAG" \
+              --target "${{ github.ref_name }}" \
               --title "Release $VERSION" \
               --notes-file "release_body.md" \
               $prerelease_arg \
@@ -267,6 +269,7 @@ jobs:
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
           git reset --hard HEAD
           git pull --rebase origin ${{ github.ref_name }}
+          git fetch --tags
           NEW_DEV=$(python .github/scripts/version_manager.py bump --type dev --level patch)
 
           if [ -f .github/scripts/update_templates.py ]; then
