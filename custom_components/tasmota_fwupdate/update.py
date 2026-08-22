@@ -59,6 +59,7 @@ _release_cache: dict[str, Any] = {
     "release_summary": None,
     "release_notes": None,
     "last_check": None,
+    "rate_limited": False,
 }
 
 
@@ -110,7 +111,14 @@ async def _fetch_latest_release(hass: HomeAssistant) -> dict[str, Any] | None:
                     "release_url": release_url,
                     "release_notes": release_notes,
                     "release_summary": release_summary,
+                    "rate_limited": False,
                 }
+            if response.status == 403:
+                _LOGGER.warning(
+                    "GitHub API rate limit exceeded (status 403) when fetching Tasmota release"
+                )
+                return {"rate_limited": True}
+
             _LOGGER.warning(
                 "GitHub API returned status %s when fetching Tasmota release",
                 response.status,
@@ -212,6 +220,7 @@ class TasmotaUpdateEntity(
         self._attr_release_url = _release_cache.get("release_url")
         self._attr_release_summary = _release_cache.get("release_summary")
         self._release_notes: str | None = _release_cache.get("release_notes")
+        self._rate_limited: bool = _release_cache.get("rate_limited", False)
         self._update_in_progress: bool = False
         self._version_before_update: str | None = None
         self._suppress_availability_updates: bool = False
@@ -287,6 +296,9 @@ class TasmotaUpdateEntity(
         # If next target is different from actual latest, show the intermediate step
         if next_target and next_target != self._attr_latest_version:
             return next_target
+
+        if self._attr_latest_version is None and self._rate_limited:
+            return self._attr_installed_version
 
         return self._attr_latest_version
 
@@ -374,10 +386,15 @@ class TasmotaUpdateEntity(
     @callback
     def _on_release_update(self, release_info: dict[str, Any]) -> None:
         """Handle release info update from coordinator."""
-        self._attr_latest_version = release_info.get("version")
-        self._attr_release_url = release_info.get("release_url")
-        self._attr_release_summary = release_info.get("release_summary")
-        self._release_notes = release_info.get("release_notes")
+        if "version" in release_info:
+            self._attr_latest_version = release_info.get("version")
+        if "release_url" in release_info:
+            self._attr_release_url = release_info.get("release_url")
+        if "release_summary" in release_info:
+            self._attr_release_summary = release_info.get("release_summary")
+        if "release_notes" in release_info:
+            self._release_notes = release_info.get("release_notes")
+        self._rate_limited = release_info.get("rate_limited", False)
         self.async_write_ha_state()
 
     @callback
