@@ -494,7 +494,8 @@ class TasmotaUpdateEntity(
         _LOGGER.info(
             "Initiating Tasmota firmware update for entity '%s' (Device: %s): Current=%s, Target=%s, OtaUrl=%s",
             self.entity_id,
-            getattr(self._tasmota_entity, "_cfg", None) and self._tasmota_entity._cfg.mac,
+            getattr(self._tasmota_entity, "_cfg", None)
+            and self._tasmota_entity._cfg.mac,
             self._version_before_update,
             next_target or "latest",
             url or "Default (configured on device)",

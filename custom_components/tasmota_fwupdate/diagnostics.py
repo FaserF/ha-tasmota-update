@@ -10,7 +10,6 @@ from homeassistant.core import HomeAssistant
 from homeassistant.helpers import device_registry as dr
 from homeassistant.helpers import entity_registry as er
 
-from .const import DOMAIN
 from .discovery import DISCOVERY_DATA
 from .update import _release_cache
 
@@ -39,7 +38,11 @@ def _anonymize_mac(mac: str) -> str:
     """Anonymize MAC address keeping only the manufacturer prefix / generic structure."""
     if not mac or len(mac) < 6:
         return "**REDACTED**"
-    parts = mac.split(":") if ":" in mac else [mac[i : i + 2] for i in range(0, len(mac), 2)]
+    parts = (
+        mac.split(":")
+        if ":" in mac
+        else [mac[i : i + 2] for i in range(0, len(mac), 2)]
+    )
     if len(parts) >= 6:
         return f"{parts[0]}:{parts[1]}:{parts[2]}:**:**:**"
     return "**REDACTED**"
@@ -127,7 +130,9 @@ async def async_get_device_diagnostics(
 
     raw_payload = discovery_data.get(device_mac) if device_mac else None
     sanitized_payload = (
-        _sanitize_discovery_payload(raw_payload) if isinstance(raw_payload, dict) else None
+        _sanitize_discovery_payload(raw_payload)
+        if isinstance(raw_payload, dict)
+        else None
     )
 
     return {
