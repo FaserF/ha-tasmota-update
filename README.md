@@ -55,9 +55,18 @@ This integration is fully compatible with [HACS](https://hacs.xyz/).
 2. Click "Add Integration" and search for "Tasmota Firmware Update".
 3. Follow the instructions. By default, it uses `tasmota/discovery/` as the MQTT discovery prefix.
 
-## Disclaimer
+## Disclaimer & Best Practices
 
-Firmware updates always carry a small risk. While this integration follows official Tasmota upgrade paths, use it at your own risk.
+> [!WARNING]
+> **Firmware updates always carry inherent risks!**
+> While this integration initiates official Tasmota upgrade commands (`OtaUrl` & `Upgrade 1`), the actual download, partition handling, decompression, and flashing are performed by Tasmota itself directly on the hardware.
+
+- **Hardware & Memory Constraints:** Devices with 1MB flash (such as many ESP8266/ESP8285 smart plugs) perform a multi-step update internally (downloading minimal firmware first before fetching the full binary). Network drops, weak Wi-Fi signal, or low free RAM during this stage can trigger Tasmota's native Safeboot / recovery fallback AP (`tasmota-XXXXXX-XXXX`).
+- **Test Before Bulk Updating:** Always test the update process on **one single device** before triggering updates across dozens of devices simultaneously.
+- **Integration vs. Firmware Failures:** A failed update, bootloop, or safeboot state on an individual device does **not** automatically indicate a bug in this integration. This integration merely triggers Tasmota's official OTA process over MQTT.
+- **Safeboot Recovery:** If a device drops offline and enters Safeboot, it will typically broadcast its own temporary Wi-Fi access point (e.g. `tasmota-XXXXXX-XXXX` at `192.168.4.1`). Connect to it to re-apply Wi-Fi settings or complete the OTA firmware flash.
+
+Use this integration at your own risk.
 
 ## License
 

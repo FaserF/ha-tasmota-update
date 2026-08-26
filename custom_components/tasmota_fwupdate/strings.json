@@ -5,13 +5,18 @@
         "data": {
           "discovery_prefix": "Discovery prefix"
         },
-        "description": "Specify the Tasmota discovery prefix.",
+        "description": "Specify the Tasmota discovery prefix.\n\n⚠️ **Important Note on OTA Updates:**\nFirmware updates always carry inherent risks due to device hardware constraints (such as limited flash memory on ESP8266/ESP8285 devices, power interruptions, or network conditions). It is strongly recommended to test updates on a single device first before updating all devices in bulk. Failed updates or safeboot states on individual devices are typically caused by hardware/network/flash constraints during Tasmota's internal OTA process and do not indicate a bug in this integration.",
+        "title": "Tasmota Firmware Update"
+      },
+      "confirm": {
+        "description": "Do you want to set up Tasmota Firmware Update?\n\n⚠️ **Important Note on OTA Updates:**\nFirmware updates always carry inherent risks due to device hardware constraints (such as limited flash memory on ESP8266/ESP8285 devices, power interruptions, or network conditions). It is strongly recommended to test updates on a single device first before updating all devices in bulk. Failed updates or safeboot states on individual devices are typically caused by hardware/network/flash constraints during Tasmota's internal OTA process and do not indicate a bug in this integration.",
         "title": "Tasmota Firmware Update"
       }
     },
     "abort": {
       "already_configured": "Service is already configured",
-      "invalid_discovery_prefix": "Invalid discovery prefix"
+      "invalid_discovery_prefix": "Invalid discovery prefix",
+      "single_instance_allowed": "Only a single configuration of Tasmota Firmware Update is allowed."
     }
   },
   "title": "Tasmota Firmware Update",

@@ -160,12 +160,23 @@ class TasmotaUpdate(TasmotaAvailability, TasmotaEntity):
             # Use Backlog to set OtaUrl and then trigger upgrade
             # Backlog command format: "OtaUrl http://...; Upgrade 1"
             payload = f"OtaUrl {url}; Upgrade 1"
+            _LOGGER.info(
+                "[%s] Sending firmware update command via MQTT backlog to '%s': %s",
+                self._cfg.mac,
+                self._cfg.backlog_topic,
+                payload,
+            )
             await self._mqtt_client.publish(
                 self._cfg.backlog_topic,
                 payload,
             )
         else:
             # No URL - just send Upgrade 1 to use pre-configured OtaUrl
+            _LOGGER.info(
+                "[%s] Sending firmware upgrade command '1' via MQTT to '%s'",
+                self._cfg.mac,
+                self._cfg.command_topic,
+            )
             await self._mqtt_client.publish(
                 self._cfg.command_topic,
                 "1",
