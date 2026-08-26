@@ -50,7 +50,6 @@ UPGRADE_STEPS = [
     (Version("8.5.1"), "http://ota.tasmota.com/tasmota/release-8.5.1/tasmota.bin"),
     (Version("9.1.0"), "http://ota.tasmota.com/tasmota/release-9.1.0/tasmota.bin.gz"),
 ]
-LATEST_URL = "http://ota.tasmota.com/tasmota/release/tasmota.bin.gz"
 
 # Global cache for latest version and release info (shared across all entities)
 _release_cache: dict[str, Any] = {
@@ -227,45 +226,18 @@ class TasmotaUpdateEntity(
         self._update_started: datetime | None = None
         self._unsupported_reason: str | None = None
 
-    def _get_upgrade_url(self) -> str:
-        """Get the upgrade URL for the current variant."""
-        if not self._installed_version_raw:
-            return LATEST_URL
-
-        match = re.match(
-            r"^(?P<version>[0-9.]+)\((?P<variant>.*)\)$", self._installed_version_raw
-        )
-        if not match:
-            return LATEST_URL
-
-        variant = match.group("variant")
-        if variant.startswith("release-"):
-            variant = variant[8:]
-
-        # ESP32 builds
-        if "tasmota32" in variant or variant in [
-            "bluetooth",
-            "lvgl",
-            "nspanel",
-            "webcam",
-            "zbbridgepro",
-        ]:
-            filename = variant
-            if not filename.startswith("tasmota32"):
-                filename = f"tasmota32-{filename}"
-            return f"http://ota.tasmota.com/tasmota32/release/{filename}.bin"
-
-        # ESP8266 builds
-        filename = variant
-        if filename != "tasmota" and not filename.startswith("tasmota-"):
-            filename = f"tasmota-{filename}"
-        return f"http://ota.tasmota.com/tasmota/release/{filename}.bin.gz"
-
     def _get_next_upgrade_target(self) -> tuple[str | None, str | None]:
         """Calculate next upgrade target version and URL based on staged upgrade path.
 
-        Returns tuple of (target_version, url). If url is None but target_version is set,
-        manual upgrade is required for very old firmware versions.
+        Returns tuple of (target_version, url).
+        - url is a string: explicit staged intermediate step (old firmware only).
+        - url is None AND target_version == latest: send plain Upgrade 1 (safe for all chips).
+        - url is None AND target_version != latest: firmware too old, manual upgrade required.
+
+        For firmware >= 9.1.0, url=None is intentional. Only 'Upgrade 1' is sent without
+        overwriting the device's OtaUrl. This ensures Tasmota uses its own correctly
+        configured OtaUrl for the right chip variant (ESP8266, ESP32-C3, ESP32-S3, etc.).
+        Overwriting OtaUrl with a generic URL would flash the wrong binary on non-standard chips.
         """
         if not self._attr_installed_version:
             return None, None
@@ -282,8 +254,9 @@ class TasmotaUpdateEntity(
             if current < target_version:
                 return str(target_version), url
 
-        # Version >= 9.1.0, can upgrade directly to latest
-        return self._attr_latest_version, self._get_upgrade_url()
+        # Version >= 9.1.0: safe to upgrade directly. Do NOT set OtaUrl –
+        # let the device use its own stored, architecture-correct OtaUrl.
+        return self._attr_latest_version, None
 
     @property
     def latest_version(self) -> str | None:
@@ -453,7 +426,14 @@ class TasmotaUpdateEntity(
                 )
             elif new_version:
                 next_target, url = self._get_next_upgrade_target()
-                if next_target and url is None:
+                # Unsupported only when next_target is below latest AND url is None
+                # (meaning we're stuck in a "too old for auto OTA" stage).
+                # If next_target == latest and url is None, that is the normal current-firmware path.
+                if (
+                    next_target
+                    and url is None
+                    and next_target != self._attr_latest_version
+                ):
                     self._unsupported_reason = (
                         f"Your current firmware ({new_version}) is too old for automatic OTA updates. "
                         f"Manual upgrade to at least version {next_target} required."
@@ -468,8 +448,10 @@ class TasmotaUpdateEntity(
         # Get the appropriate upgrade target and URL
         next_target, url = self._get_next_upgrade_target()
 
-        if url is None and next_target:
-            # Very old firmware - cannot auto-upgrade
+        # Block if firmware is too old for auto-OTA (staged step with no URL = manual required).
+        # This does NOT apply to current firmware (>= 9.1.0) where url=None intentionally means
+        # "send Upgrade 1 only, let device use its own OtaUrl".
+        if url is None and next_target and next_target != self._attr_latest_version:
             _LOGGER.error(
                 "Cannot auto-upgrade from version %s - manual upgrade to at least %s required",
                 self._attr_installed_version,
