@@ -312,9 +312,14 @@ async def async_start(  # noqa: C901
 
         device_registry = dr.async_get(hass)
         entity_registry = er.async_get(hass)
-        device = device_registry.async_get_device(
-            connections={(dr.CONNECTION_NETWORK_MAC, mac)}
-        )
+        if hasattr(device_registry, "async_get_device_by_connection"):
+            device = device_registry.async_get_device_by_connection(
+                (dr.CONNECTION_NETWORK_MAC, mac)
+            )
+        else:
+            device = device_registry.async_get_device(
+                connections={(dr.CONNECTION_NETWORK_MAC, mac)}
+            )
 
         if device is None:
             _LOGGER.warning("Got sensors for unknown device mac: %s", mac)

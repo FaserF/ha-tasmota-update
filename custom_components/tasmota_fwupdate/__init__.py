@@ -126,9 +126,14 @@ async def _remove_device(
     device_registry: DeviceRegistry,
 ) -> None:
     """Remove a discovered Tasmota device."""
-    device = device_registry.async_get_device(
-        connections={(CONNECTION_NETWORK_MAC, mac)}
-    )
+    if hasattr(device_registry, "async_get_device_by_connection"):
+        device = device_registry.async_get_device_by_connection(
+            (CONNECTION_NETWORK_MAC, mac)
+        )
+    else:
+        device = device_registry.async_get_device(
+            connections={(CONNECTION_NETWORK_MAC, mac)}
+        )
 
     if device is None or config_entry.entry_id not in device.config_entries:
         return
