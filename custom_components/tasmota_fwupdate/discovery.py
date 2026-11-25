@@ -314,7 +314,8 @@ async def async_start(  # noqa: C901
         entity_registry = er.async_get(hass)
         if hasattr(device_registry, "async_get_device_by_connection"):
             device = device_registry.async_get_device_by_connection(
-                (dr.CONNECTION_NETWORK_MAC, mac)
+                (dr.CONNECTION_NETWORK_MAC, mac),
+                config_entry.entry_id,
             )
         else:
             device = device_registry.async_get_device(

@@ -4,7 +4,10 @@ from __future__ import annotations
 
 from typing import Any
 
-import voluptuous as vol
+try:
+    import probatio as vol
+except ImportError:
+    import voluptuous as vol  # type: ignore[no-redef]
 from homeassistant.components.mqtt import valid_subscribe_topic
 from homeassistant.config_entries import ConfigFlow, ConfigFlowResult
 from homeassistant.helpers.service_info.mqtt import MqttServiceInfo
