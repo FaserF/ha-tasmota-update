@@ -225,7 +225,8 @@ async def async_setup_trigger(
     device_registry = dr.async_get(hass)
     if hasattr(device_registry, "async_get_device_by_connection"):
         device = device_registry.async_get_device_by_connection(
-            (CONNECTION_NETWORK_MAC, tasmota_trigger.cfg.mac)
+            (CONNECTION_NETWORK_MAC, tasmota_trigger.cfg.mac),
+            config_entry.entry_id,
         )
     else:
         device = device_registry.async_get_device(
